@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import TwitchPlayer from "../components/TwitchPlayer";
 
-const API = "http://localhost:8000/api";
+const API = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 function secondsToHMS(s) {
   const h = Math.floor(s / 3600);

@@ -3,7 +3,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 
 const DONATE_URL = "https://tilt.fyi/EMmt5WmPFh";
-const API = "http://localhost:8000/api";
+const API = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 function formatSeconds(s) {
   const h = Math.floor(s / 3600);
