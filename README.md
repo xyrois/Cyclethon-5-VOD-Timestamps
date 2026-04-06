@@ -11,7 +11,7 @@ A fan-made site for Connor's Cyclethon charity stream, browse VODs, and jump to 
 - **Frontend** — React + Vite + React Router
 - **Backend** — FastAPI (Python)
 - **Database** — PostgreSQL
-- **Deployment** — Railway
+- **Deployment** — Vercel + Render
 
 ---
 
