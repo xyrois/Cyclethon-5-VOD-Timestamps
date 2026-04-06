@@ -8,6 +8,7 @@ export default function Nav() {
   return (
     <nav style={styles.nav}>
       <Link to="/" style={styles.logo}>
+        <img src="/logo.png" style={{ width: "28px", height: "28px", borderRadius: "6px", imageRendering: "pixelated" }} />
         Cyclethon 5
       </Link>
 
@@ -17,6 +18,10 @@ export default function Nav() {
         </Link>
         <Link to="/clips" style={{ ...styles.link, ...(pathname === "/clips" ? styles.linkActive : {}) }}>
           Clips
+        </Link>
+        <Link to="/live" style={{ ...styles.link, ...(pathname === "/live" ? styles.linkActive : {}), display: "flex", alignItems: "center", gap: "0.35rem" }}>
+          <span style={styles.liveDot} />
+          Live
         </Link>
         <a href={DONATE_URL} target="_blank" rel="noreferrer" style={styles.donateBtn}>
           ♥ Donate
@@ -45,6 +50,9 @@ const styles = {
     fontSize: "1.05rem",
     letterSpacing: "-0.3px",
     color: "var(--text)",
+    display: "flex",
+    alignItems: "center",
+    gap: "0.5rem",
   },
   links: {
     display: "flex",
@@ -62,6 +70,13 @@ const styles = {
   linkActive: {
     color: "var(--text)",
     background: "var(--surface-2)",
+  },
+  liveDot: {
+    display: "inline-block",
+    width: "7px",
+    height: "7px",
+    borderRadius: "50%",
+    background: "var(--red)",
   },
   donateBtn: {
     marginLeft: "0.5rem",
