@@ -7,7 +7,7 @@ export default function ClipsPage() {
 
       <div style={styles.card}>
         <p style={styles.blurb}> 
-          Cheeck out the clips uploaded to Connor's official clips
+          The clips are uploaded to Connor's official clips
           channel.
         </p>
 

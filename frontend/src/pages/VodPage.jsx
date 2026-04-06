@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import TwitchPlayer from "../components/TwitchPlayer";
+import YouTubePlayer from "../components/Youtubeplayer";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
@@ -102,7 +102,7 @@ export default function VodPage() {
         {/* Left: player + add timestamp (admin only) */}
         <div style={styles.left}>
           {vod?.vod_id && (
-            <TwitchPlayer ref={playerRef} vodId={vod.vod_id} />
+            <YouTubePlayer ref={playerRef} videoId={vod.vod_id} />
           )}
 
           {isAdmin && (
@@ -304,7 +304,7 @@ const styles = {
     textAlign: "center",
   },
   tsList: {
-    maxHeight: "calc(100vh - 220px)",
+    maxHeight: "420px", // shows about ~10 timestamps
     overflowY: "auto",
   },
   tsRow: {

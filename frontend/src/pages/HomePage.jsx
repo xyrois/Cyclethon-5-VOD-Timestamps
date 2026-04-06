@@ -34,7 +34,7 @@ export default function HomePage() {
         <img src="/logo.png" style={styles.heroLogo} />
       </div>
       <p style={styles.heroSub}>
-        Please support the immune deficiency foundation. This website is dedicated for timestamps to make watching the VOD easier.
+        Please support the immune deficiency foundation. This website is for obtaining timestamps to make watching the VOD easier.
       </p>
       <div style={styles.heroActions}>
         <a href={DONATE_URL} target="_blank" rel="noreferrer" style={styles.donateBtn}>
@@ -66,7 +66,7 @@ export default function HomePage() {
                 </div>
                 <div style={styles.vodInfo}>
                   <div style={styles.vodTitle}>{vod.title || `VOD ${i + 1}`}</div>
-                  <div style={styles.vodMeta}>Twitch VOD · {vod.vod_id}</div>
+                  <div style={styles.vodMeta}>VOD · {vod.vod_id}</div>
                 </div>
                 <div style={styles.vodArrow}>→</div>
               </Link>
