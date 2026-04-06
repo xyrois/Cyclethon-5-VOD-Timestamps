@@ -1,23 +1,32 @@
 import { useState, useEffect } from "react";
 
-const TWITCH_CHANNEL = "cdawg";
 const START_DAY_NUMBER = 3;
+const TWITCH_CHANNEL = "cdawg";
 
-// Get the next 9:00 AM JST stream
+// Get current JST time
+function getJSTNow() {
+  return new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
+}
+
+// Get next 9:00 AM JST
 function getNextStreamTime() {
-  const now = new Date();
-
-  // JST offset: UTC+9
-  const todayJST = new Date(
-    now.toLocaleDateString("en-US", { timeZone: "Asia/Tokyo" })
-  );
-  const streamJST = new Date(`${todayJST.toISOString().split("T")[0]}T09:00:00+09:00`);
-
-  if (now > streamJST) {
-    streamJST.setDate(streamJST.getDate() + 1);
+  const now = getJSTNow();
+  const stream = new Date(now);
+  stream.setHours(9, 0, 0, 0); // 9:00 AM JST today
+  if (now >= stream) {
+    stream.setDate(stream.getDate() + 1);
   }
+  return stream;
+}
 
-  return streamJST;
+// Countdown calculation
+function getCountdown(target) {
+  const diff = target - getJSTNow();
+  if (diff <= 0) return { h: 0, m: 0, s: 0 };
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  return { h, m, s };
 }
 
 // Pad numbers
@@ -25,61 +34,31 @@ function pad(n) {
   return String(n).padStart(2, "0");
 }
 
-// Countdown calculation
-function getCountdown(target) {
-  const diff = target - new Date();
-  if (diff <= 0) return { h: 0, m: 0, s: 0, done: true };
-  const h = Math.floor(diff / 3600000);
-  const m = Math.floor((diff % 3600000) / 60000);
-  const s = Math.floor((diff % 60000) / 1000);
-  return { h, m, s, done: false };
-}
-
-// Get current JST hour
-function getJSTHour() {
-  const now = new Date();
-  const nowJST = new Date(
-    now.toLocaleString("en-US", { timeZone: "Asia/Tokyo" })
-  );
-  return nowJST.getHours();
-}
-
 export default function LivePage() {
-  const [isLive, setIsLive] = useState(false);
-  const [countdown, setCountdown] = useState({ h: 0, m: 0, s: 0, done: false });
+  const [countdown, setCountdown] = useState(getCountdown(getNextStreamTime()));
   const [dayNumber, setDayNumber] = useState(START_DAY_NUMBER);
-  const target = getNextStreamTime();
+  const [isLive, setIsLive] = useState(false); // manual toggle for now
 
-  // Countdown + auto-live + day increment
   useEffect(() => {
-    const tick = () => {
-      const cd = getCountdown(target);
-      setCountdown(cd);
+    const interval = setInterval(() => {
+      const target = getNextStreamTime();
+      setCountdown(getCountdown(target));
 
-      // Auto switch to live
-      if (cd.done) setIsLive(true);
-
-      // Increment day after 5:00 PM JST
-      const jstHour = getJSTHour();
-      if (jstHour >= 17) {
-        setDayNumber((prev) => START_DAY_NUMBER + 1); // Increment by 1 after 5PM JST
-      } else {
-        setDayNumber(START_DAY_NUMBER); // Reset to base before 5PM
-      }
-    };
-
-    tick(); // initialize immediately
-    const interval = setInterval(tick, 1000);
+      const now = getJSTNow();
+      const hour = now.getHours();
+      const dayOffset = hour >= 21 ? 1 : 0;
+      setDayNumber(START_DAY_NUMBER + dayOffset);
+    }, 1000);
 
     return () => clearInterval(interval);
-  }, [target]);
+  }, []);
 
   return (
     <div style={styles.page}>
       {isLive ? (
         <div style={styles.liveWrap}>
           <div style={styles.liveBadge}>🔴 LIVE NOW</div>
-          <h1 style={styles.liveTitle}>Cyclethon is live!</h1>
+          <h1 style={styles.liveTitle}>cdawgva is live!</h1>
           <div style={styles.playerWrap}>
             <iframe
               src={`https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${window.location.hostname}`}
@@ -97,25 +76,20 @@ export default function LivePage() {
           </a>
         </div>
       ) : (
-        <div style={styles.countdownWrap}>
+        <div>
           <p style={styles.eyebrow}>Cyclethon 5</p>
           <h1 style={styles.heading}>Day {dayNumber} starts in</h1>
           <div style={styles.timerRow}>
-            <div style={styles.timerBlock}>
-              <span style={styles.timerNum}>{pad(countdown.h)}</span>
-              <span style={styles.timerLabel}>hours</span>
-            </div>
-            <span style={styles.timerColon}>:</span>
-            <div style={styles.timerBlock}>
-              <span style={styles.timerNum}>{pad(countdown.m)}</span>
-              <span style={styles.timerLabel}>minutes</span>
-            </div>
-            <span style={styles.timerColon}>:</span>
-            <div style={styles.timerBlock}>
-              <span style={styles.timerNum}>{pad(countdown.s)}</span>
-              <span style={styles.timerLabel}>seconds</span>
-            </div>
+            {["h", "m", "s"].map((key) => (
+              <div key={key} style={styles.timerBlock}>
+                <span style={styles.timerNum}>{pad(countdown[key])}</span>
+                <span style={styles.timerLabel}>
+                  {key === "h" ? "hours" : key === "m" ? "minutes" : "seconds"}
+                </span>
+              </div>
+            ))}
           </div>
+          <p style={styles.sub}>Starts at 9:00 AM JST on Twitch</p>
           <a
             href={`https://twitch.tv/${TWITCH_CHANNEL}`}
             target="_blank"
@@ -185,11 +159,10 @@ const styles = {
     textTransform: "uppercase",
     letterSpacing: "0.06em",
   },
-  timerColon: {
-    fontSize: "clamp(2rem, 6vw, 3rem)",
-    fontWeight: 700,
-    color: "var(--text-subtle)",
-    marginBottom: "1.5rem",
+  sub: {
+    fontSize: "0.9rem",
+    color: "var(--text-muted)",
+    marginBottom: "2rem",
   },
   twitchBtn: {
     display: "inline-flex",
@@ -200,6 +173,8 @@ const styles = {
     borderRadius: "var(--radius)",
     fontWeight: 600,
     fontSize: "0.95rem",
+    marginTop: "1.5rem",
+    textDecoration: "none",
   },
   liveWrap: {
     display: "flex",

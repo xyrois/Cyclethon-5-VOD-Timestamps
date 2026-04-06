@@ -63,15 +63,15 @@ const styles = {
   },
 
   linkButton: {
-    display: "inline-block",
-    padding: "0.7rem 1.4rem",
-    fontSize: "0.95rem",
+    display: "inline-flex",
+    alignItems: "center",
+    padding: "0.7rem 1.75rem",
+    background: "#9146ff",
+    color: "#fff",
+    borderRadius: "var(--radius)",
     fontWeight: 600,
-    borderRadius: "var(--radius-md)",
-    background: "var(--accent)",
-    color: "white",
+    fontSize: "0.95rem",
     textDecoration: "none",
-    marginBottom: "1.5rem",
   },
 
   subtext: {

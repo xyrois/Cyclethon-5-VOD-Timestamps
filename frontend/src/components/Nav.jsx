@@ -1,14 +1,34 @@
 import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const DONATE_URL = "https://tilt.fyi/EMmt5WmPFh";
 
+// Helper to get current JST hour
+function getJSTHour() {
+  const now = new Date();
+  const nowJST = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
+  return nowJST.getHours();
+}
+
 export default function Nav() {
   const { pathname } = useLocation();
+  const [hour, setHour] = useState(getJSTHour());
+
+  // Update hour every minute so the red dot appears/disappears in real time
+  useEffect(() => {
+    const interval = setInterval(() => setHour(getJSTHour()), 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const showLiveDot = hour >= 9 && hour < 17; // 9 AM to 5 PM JST
 
   return (
     <nav style={styles.nav}>
       <Link to="/" style={styles.logo}>
-        <img src="/logo.png" style={{ width: "28px", height: "28px", borderRadius: "6px", imageRendering: "pixelated" }} />
+        <img
+          src="/logo.png"
+          style={{ width: "28px", height: "28px", borderRadius: "6px", imageRendering: "pixelated" }}
+        />
         Cyclethon 5
       </Link>
 
@@ -19,8 +39,17 @@ export default function Nav() {
         <Link to="/clips" style={{ ...styles.link, ...(pathname === "/clips" ? styles.linkActive : {}) }}>
           Clips
         </Link>
-        <Link to="/live" style={{ ...styles.link, ...(pathname === "/live" ? styles.linkActive : {}), display: "flex", alignItems: "center", gap: "0.35rem" }}>
-          <span style={styles.liveDot} />
+        <Link
+          to="/live"
+          style={{
+            ...styles.link,
+            ...(pathname === "/live" ? styles.linkActive : {}),
+            display: "flex",
+            alignItems: "center",
+            gap: "0.35rem",
+          }}
+        >
+          {showLiveDot && <span style={styles.liveDot} />}
           Live
         </Link>
         <a href={DONATE_URL} target="_blank" rel="noreferrer" style={styles.donateBtn}>
