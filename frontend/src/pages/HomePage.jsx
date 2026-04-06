@@ -34,7 +34,7 @@ export default function HomePage() {
         <img src="/logo.png" style={styles.heroLogo} />
       </div>
       <p style={styles.heroSub}>
-        Please support the immune deficiency foundation. This website is for obtaining timestamps to make watching the VOD easier.
+        Please support the immune deficiency foundation. This goal of this project is to make watching the VODs easier by including timestamps.
       </p>
       <div style={styles.heroActions}>
         <a href={DONATE_URL} target="_blank" rel="noreferrer" style={styles.donateBtn}>
