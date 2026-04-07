@@ -1,25 +1,22 @@
 import { useState, useEffect } from "react";
 
-const START_DAY_NUMBER = 3;
-const TWITCH_CHANNEL = "cdawg";
+const START_DAY_NUMBER = 0; 
+const TWITCH_CHANNEL = "cdawgva";
 
-// Get current JST time
 function getJSTNow() {
   return new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
 }
 
-// Get next 9:00 AM JST
 function getNextStreamTime() {
   const now = getJSTNow();
   const stream = new Date(now);
-  stream.setHours(9, 0, 0, 0); // 9:00 AM JST today
+  stream.setHours(9, 0, 0, 0);
   if (now >= stream) {
     stream.setDate(stream.getDate() + 1);
   }
   return stream;
 }
 
-// Countdown calculation
 function getCountdown(target) {
   const diff = target - getJSTNow();
   if (diff <= 0) return { h: 0, m: 0, s: 0 };
@@ -29,36 +26,48 @@ function getCountdown(target) {
   return { h, m, s };
 }
 
-// Pad numbers
 function pad(n) {
   return String(n).padStart(2, "0");
 }
 
 export default function LivePage() {
-  const [countdown, setCountdown] = useState(getCountdown(getNextStreamTime()));
-  const [dayNumber, setDayNumber] = useState(START_DAY_NUMBER);
-  const [isLive, setIsLive] = useState(false); // manual toggle for now
+  // Start with null to prevent "Day 0" or empty flashes
+  const [dayNumber, setDayNumber] = useState(null);
+  const [isLive, setIsLive] = useState(false);
+  const [countdown, setCountdown] = useState(null);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const target = getNextStreamTime();
-      setCountdown(getCountdown(target));
-
+    const updateStatus = () => {
       const now = getJSTNow();
       const hour = now.getHours();
-      const dayOffset = hour >= 21 ? 1 : 0;
-      setDayNumber(START_DAY_NUMBER + dayOffset);
-    }, 1000);
 
+      // (9:00 AM to 5:00 PM JST)
+      const currentlyLive = hour >= 9 && hour < 17;
+      setIsLive(currentlyLive);
+
+      // 3. Day Calculation
+      // If we are currently live or past 9 AM, it's today's day number.
+      // If we are before 9 AM, the "Day X starts in" refers to the upcoming 9 AM.
+      const dayOffset = hour >= 9 ? 0 : -1; 
+      setDayNumber(START_DAY_NUMBER + dayOffset + 3);
+
+      setCountdown(getCountdown(getNextStreamTime()));
+    };
+
+    updateStatus();
+    const interval = setInterval(updateStatus, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  // Strict Guard: Don't render anything until the day calculation is complete
+  if (dayNumber === null || countdown === null) return null;
 
   return (
     <div style={styles.page}>
       {isLive ? (
         <div style={styles.liveWrap}>
           <div style={styles.liveBadge}>🔴 LIVE NOW</div>
-          <h1 style={styles.liveTitle}>cdawgva is live!</h1>
+          <h1 style={styles.liveTitle}>Day {dayNumber} is live!</h1>
           <div style={styles.playerWrap}>
             <iframe
               src={`https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${window.location.hostname}`}
@@ -66,12 +75,7 @@ export default function LivePage() {
               allowFullScreen
             />
           </div>
-          <a
-            href={`https://twitch.tv/${TWITCH_CHANNEL}`}
-            target="_blank"
-            rel="noreferrer"
-            style={styles.twitchBtn}
-          >
+          <a href={`https://twitch.tv/${TWITCH_CHANNEL}`} target="_blank" rel="noreferrer" style={styles.twitchBtn}>
             Watch on Twitch →
           </a>
         </div>
@@ -90,12 +94,7 @@ export default function LivePage() {
             ))}
           </div>
           <p style={styles.sub}>Starts at 9:00 AM JST on Twitch</p>
-          <a
-            href={`https://twitch.tv/${TWITCH_CHANNEL}`}
-            target="_blank"
-            rel="noreferrer"
-            style={styles.twitchBtn}
-          >
+          <a href={`https://twitch.tv/${TWITCH_CHANNEL}`} target="_blank" rel="noreferrer" style={styles.twitchBtn}>
             Follow on Twitch →
           </a>
         </div>
