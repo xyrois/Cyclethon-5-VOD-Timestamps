@@ -67,7 +67,7 @@ export default function LivePage() {
       {isLive ? (
         <div style={styles.liveWrap}>
           <div style={styles.liveBadge}>🔴 LIVE NOW</div>
-          <h1 style={styles.liveTitle}>Day {dayNumber} is live!</h1>
+          <h1 style={styles.liveTitle}>Connor is live!</h1>
           <div style={styles.playerWrap}>
             <iframe
               src={`https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${window.location.hostname}`}
