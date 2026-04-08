@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 const START_DAY_NUMBER = 0; 
-const TWITCH_CHANNEL = "cdawgva";
+const TWITCH_CHANNEL = "cdawg";
 
 function getJSTNow() {
   return new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
