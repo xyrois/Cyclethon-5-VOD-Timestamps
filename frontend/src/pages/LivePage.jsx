@@ -1,16 +1,22 @@
 import { useState, useEffect } from "react";
 
-const START_DAY_NUMBER = 0; 
 const TWITCH_CHANNEL = "cdawg";
+const CYCLETHON_START_JST = new Date("2026-04-05T09:00:00+09:00");
 
 function getJSTNow() {
   return new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
 }
 
-function getNextStreamTime() {
+function getTodayStreamTime() {
   const now = getJSTNow();
   const stream = new Date(now);
   stream.setHours(9, 0, 0, 0);
+  return stream;
+}
+
+function getNextStreamTime() {
+  const now = getJSTNow();
+  const stream = getTodayStreamTime();
   if (now >= stream) {
     stream.setDate(stream.getDate() + 1);
   }
@@ -26,12 +32,25 @@ function getCountdown(target) {
   return { h, m, s };
 }
 
+function getCyclethonDayNumber() {
+  const now = getJSTNow();
+  const todayStream = getTodayStreamTime();
+
+  // Before 9 AM JST, show the upcoming day's number.
+  // At/after 9 AM JST, show today's live day number.
+  const referenceTime = now < todayStream ? todayStream : now;
+
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const diffDays = Math.floor((referenceTime - CYCLETHON_START_JST) / msPerDay);
+
+  return diffDays + 1;
+}
+
 function pad(n) {
   return String(n).padStart(2, "0");
 }
 
 export default function LivePage() {
-  // Start with null to prevent "Day 0" or empty flashes
   const [dayNumber, setDayNumber] = useState(null);
   const [isLive, setIsLive] = useState(false);
   const [countdown, setCountdown] = useState(null);
@@ -41,16 +60,10 @@ export default function LivePage() {
       const now = getJSTNow();
       const hour = now.getHours();
 
-      // (9:00 AM to 5:00 PM JST)
       const currentlyLive = hour >= 9 && hour < 17;
       setIsLive(currentlyLive);
 
-      // 3. Day Calculation
-      // If we are currently live or past 9 AM, it's today's day number.
-      // If we are before 9 AM, the "Day X starts in" refers to the upcoming 9 AM.
-      const dayOffset = hour >= 9 ? 0 : -1; 
-      setDayNumber(START_DAY_NUMBER + dayOffset + 3);
-
+      setDayNumber(getCyclethonDayNumber());
       setCountdown(getCountdown(getNextStreamTime()));
     };
 
@@ -59,7 +72,6 @@ export default function LivePage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Strict Guard: Don't render anything until the day calculation is complete
   if (dayNumber === null || countdown === null) return null;
 
   return (
@@ -67,7 +79,7 @@ export default function LivePage() {
       {isLive ? (
         <div style={styles.liveWrap}>
           <div style={styles.liveBadge}>🔴 LIVE NOW</div>
-          <h1 style={styles.liveTitle}>Connor is live!</h1>
+          <h1 style={styles.liveTitle}>Day {dayNumber} is live!</h1>
           <div style={styles.playerWrap}>
             <iframe
               src={`https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${window.location.hostname}`}
