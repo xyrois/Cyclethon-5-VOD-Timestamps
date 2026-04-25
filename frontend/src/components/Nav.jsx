@@ -4,23 +4,23 @@ import { useEffect, useState } from "react";
 const DONATE_URL = "https://tilt.fyi/EMmt5WmPFh";
 
 // Helper to get current JST hour
-function getJSTHour() {
-  const now = new Date();
-  const nowJST = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
-  return nowJST.getHours();
-}
+// (Kept for reference — not used while Cyclethon is over)
+// function getJSTHour() {
+//   const now = new Date();
+//   const nowJST = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Tokyo" }));
+//   return nowJST.getHours();
+// }
 
 export default function Nav() {
   const { pathname } = useLocation();
-  const [hour, setHour] = useState(getJSTHour());
 
-  // Update hour every minute so the red dot appears/disappears in real time
-  useEffect(() => {
-    const interval = setInterval(() => setHour(getJSTHour()), 60000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const showLiveDot = hour >= 9 && hour < 17; // 9 AM to 5 PM JST
+  // Live dot disabled — CDawg's post-Cyclethon schedule doesn't follow the old 9–5 JST window.
+  // const [hour, setHour] = useState(getJSTHour());
+  // useEffect(() => {
+  //   const interval = setInterval(() => setHour(getJSTHour()), 60000);
+  //   return () => clearInterval(interval);
+  // }, []);
+  // const showLiveDot = hour >= 9 && hour < 17;
 
   return (
     <nav style={styles.nav}>
@@ -49,7 +49,7 @@ export default function Nav() {
             gap: "0.35rem",
           }}
         >
-          {showLiveDot && <span style={styles.liveDot} />}
+          {/* {showLiveDot && <span style={styles.liveDot} />} */}
           Live
         </Link>
         <a href={DONATE_URL} target="_blank" rel="noreferrer" style={styles.donateBtn}>
